@@ -352,7 +352,9 @@ pnpm validate
 ### 19. Setup Husky for Git Hooks
 
 ```bash
-pnpm dlx husky init && pnpm install
+pnpm dlx husky-init && pnpm install
+or
+pnpm add -D husky -w && pnpm exec husky init
 ```
 
 This creates a `.husky` folder with pre-configured git hooks. Open `.husky/pre-commit` and replace `pnpm test` or `npm test` with:
