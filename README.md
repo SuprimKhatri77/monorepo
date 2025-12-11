@@ -353,7 +353,11 @@ pnpm validate
 
 ```bash
 pnpm dlx husky-init && pnpm install
+```
+
 or
+
+```bash
 pnpm add -D husky -w && pnpm exec husky init
 ```
 
