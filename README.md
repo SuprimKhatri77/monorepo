@@ -181,7 +181,10 @@ Create `tsconfig.json` in root:
     "target": "ESNext",
     "module": "CommonJS",
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@medium/*": ["./packages/*/src"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
@@ -201,6 +204,21 @@ Create `tsconfig.json` in `apps/api`:
     "rootDir": ".",
     "esModuleInterop": true
   }
+}
+```
+
+or
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../../packages/packageName" //eg: database, auth, trpc-server }]
 }
 ```
 
@@ -352,13 +370,13 @@ pnpm validate
 ### 19. Setup Husky for Git Hooks
 
 ```bash
-pnpm dlx husky-init && pnpm install
+pnpm add -D husky -w && pnpm exec husky init
 ```
 
 or
 
 ```bash
-pnpm add -D husky -w && pnpm exec husky init
+pnpm dlx husky-init && pnpm install
 ```
 
 This creates a `.husky` folder with pre-configured git hooks. Open `.husky/pre-commit` and replace `pnpm test` or `npm test` with:
@@ -423,6 +441,36 @@ Create `tsconfig.json` in `libs/trpc-server`:
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+    "skipLibCheck": true,
+    "incremental": true // it caches the last build so whenever we change something in a while and build again , the whole package doesnt have to build only that file will be built , rest will be in the cache.,
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo" // determines where the tsconig.tsbuildinfo goes,
+    "preserveSymlinks": true /*
+We set "preserveSymlinks": true in tsconfig.json to prevent TypeScript
+from resolving symlinked packages to their real paths. This silences
+red squiggles (false errors) in editors when using monorepo packages.
+Note: This setting is optional and does not affect runtime behavior.
+*/
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "node_modules"],
+  "references": [
+    { "path": "../../packages/packageName" },
+  ]
+}
+```
+
+or
+
+```json
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
     "rootDir": ".",
     "jsx": "react-jsx",
     "esModuleInterop": true,
@@ -444,6 +492,16 @@ Key settings:
 ### 25. Configure Package Entry Points
 
 Add to `libs/trpc-server/package.json`:
+
+```json
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": " tsc -b"
+  },
+```
+
+or
 
 ```json
 {
@@ -535,6 +593,20 @@ pnpm add @foundation-trpc/db --workspace
 ```
 
 **Example Library Package Structure:**
+
+```json
+{
+  "name": "@foundation-trpc/db",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": " tsc -b"
+  }
+}
+```
+
+or
 
 ```json
 {
